@@ -1,0 +1,76 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+archivesBaseName = "faucet"
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://maven.fabricmc.net"
+        name = "FabricMC"
+    }
+    maven {
+        url = "https://dl.bintray.com/user11681/maven"
+    }
+    maven {
+        name = 'GrossFabricHackers'
+        url = 'https://raw.githubusercontent.com/GrossFabricHackers/maven/master/'
+    }
+}
+
+dependencies {
+    shadow(implementation("net.grossfabrichackers:fabric-loader:${project.loader_version}"))
+    // shadow(implementation("net.gudenau.lib:unsafe:+"))
+
+    // For some reason the java gradle plugin doesn't apply this properly
+    implementation gradleApi()
+}
+
+processResources {
+
+}
+
+gradlePlugin {
+    plugins {
+        faucet {
+            id = 'net.grossfabrichackers.faucet'
+            implementationClass = 'net.grossfabrichackers.faucet.FaucetPlugin'
+        }
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    configurations = [project.configurations.shadow]
+}
+
+jar.enabled = false
+assemble.dependsOn shadowJar
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release = 8
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact shadowJar
+            artifact sourcesJar
+        }
+    }
+}

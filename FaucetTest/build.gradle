@@ -1,0 +1,38 @@
+buildscript {
+	repositories {
+		flatDir {
+			dir "../build/libs/"
+		}
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath "net.grossfabrichackers:faucet:+"
+	}
+}
+
+plugins {
+	id 'java'
+}
+apply plugin: "net.grossfabrichackers.faucet"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+archivesBaseName = "faucet"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+}
+
+processResources {
+
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.encoding = "UTF-8"
+	it.outputs.upToDateWhen { false }
+}
