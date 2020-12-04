@@ -1,6 +1,7 @@
 package net.grossfabrichackers.faucet.util;
 
 import java.lang.reflect.*;
+import java.util.Arrays;
 
 @SuppressWarnings("unchecked")
 public class ReflectionUtil {
@@ -54,6 +55,17 @@ public class ReflectionUtil {
 
     public static <T> T invokeStatic(Class<?> methodOwner, String name, Class<?>[] argTypes, Object[] args) {
         return invoke(methodOwner, null, name, argTypes, args);
+    }
+
+    public static Method getNonoverloadedMethod(Class<?> methodOwner, String name) {
+        try {
+            Method m = Arrays.stream(methodOwner.getDeclaredMethods()).filter(m2 -> m2.getName().equals(name)).findFirst().orElseThrow(NoSuchMethodException::new);
+            m.setAccessible(true);
+            return m;
+        } catch (NoSuchMethodException | ClassCastException e) {
+            ReflectionUtil.throwUnchecked(e);
+            return null;
+        }
     }
 
     @SuppressWarnings("all")

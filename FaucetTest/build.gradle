@@ -1,19 +1,7 @@
-buildscript {
-	repositories {
-		flatDir {
-			dir "../build/libs/"
-		}
-		gradlePluginPortal()
-	}
-	dependencies {
-		classpath "net.grossfabrichackers:faucet:+"
-	}
-}
-
 plugins {
+	id "net.grossfabrichackers.faucet" version "0.1.0"
 	id 'java'
 }
-apply plugin: "net.grossfabrichackers.faucet"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -34,5 +22,6 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
+	it.options.incremental = false
 	it.outputs.upToDateWhen { false }
 }

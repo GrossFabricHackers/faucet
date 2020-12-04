@@ -17,6 +17,7 @@ public class FaucetPlugin implements Plugin<Project> {
         AtomicReference<Throwable> innerThreadException = new AtomicReference<>();
         Thread innerThread = new Thread(() -> {
             try {
+                Thread.currentThread().setName("Faucet");
                 ClassLoader internalClassloader = JavaBasePlugin.class.getClassLoader();
                 URLClassLoader ourClassLoader = (URLClassLoader) FaucetPlugin.class.getClassLoader();
                 URL[] urls = ourClassLoader.getURLs();
