@@ -1,12 +1,11 @@
 plugins {
-	id "net.grossfabrichackers.faucet" version "0.1.0"
 	id 'java'
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-archivesBaseName = "faucet"
+archivesBaseName = "FaucetTest"
 
 repositories {
 	mavenCentral()

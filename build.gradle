@@ -4,6 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
+import org.gradle.internal.jvm.Jvm
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -30,10 +32,23 @@ dependencies {
 
     // For some reason the java gradle plugin doesn't apply this properly
     implementation gradleApi()
+
+    def toolsJar = Jvm.current().toolsJar
+    if(toolsJar != null && toolsJar.exists()) {
+        implementation files(toolsJar)
+    }
 }
 
 processResources {
-
+    // Write transient dependencies
+    Properties transientDeps = new Properties()
+    final String transientPrefix = "transient_"
+    project.properties.entrySet().stream()
+            .filter {it.key.startsWith(transientPrefix) }
+            .forEach {transientDeps.put(it.key.substring(transientPrefix.length()), it.value) }
+    new File(buildDir, "resources/main/META-INF/faucetTransientDependencies.properties").withOutputStream {
+        transientDeps.store(it, null)
+    }
 }
 
 gradlePlugin {

@@ -1,17 +1,1 @@
-pluginManagement {
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.namespace == "net.grossfabrichackers" && requested.id.name == "faucet") {
-                useModule("net.grossfabrichackers:faucet:${requested.version}")
-            }
-        }
-    }
-    repositories {
-        flatDir {
-            dir "../build/libs/"
-        }
-        gradlePluginPortal()
-    }
-}
-
 rootProject.name = 'FaucetTest'

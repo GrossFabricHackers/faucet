@@ -14,6 +14,14 @@ public class FaucetPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        if(!project.getName().equals("buildSrc")) {
+            final String errorMessage = "Faucet MUST BE applied to the buildSrc project.";
+            project.getLogger().error(errorMessage);
+            throw new IllegalStateException(errorMessage);
+        }
+
+        project.getPlugins().apply(JavaBasePlugin.class);
+
         AtomicReference<Throwable> innerThreadException = new AtomicReference<>();
         Thread innerThread = new Thread(() -> {
             try {

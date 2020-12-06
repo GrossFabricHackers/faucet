@@ -65,14 +65,14 @@ public class FaucetJavaCompilerFactory implements JavaCompilerFactory {
         if (ForkingJavaCompileSpec.class.isAssignableFrom(type)) {
             return (Compiler<T>) new DaemonJavaCompiler(
                     workingDirProvider.getWorkingDirectory(),
-                    FaucetWrappedJavaCompilarr.class, new Object[]{getJavaHomeBasedJavaCompilerFactory()},
+                    FaucetJavaCompiler.class, new Object[]{getJavaHomeBasedJavaCompilerFactory()},
                     workerDaemonFactory,
                     forkOptionsFactory,
                     classPathRegistry,
                     actionExecutionSpecFactory
             );
         } else {
-            return (Compiler<T>) new FaucetWrappedJavaCompilarr(getJavaHomeBasedJavaCompilerFactory());
+            return (Compiler<T>) new FaucetJavaCompiler(getJavaHomeBasedJavaCompilerFactory());
         }
     }
 
