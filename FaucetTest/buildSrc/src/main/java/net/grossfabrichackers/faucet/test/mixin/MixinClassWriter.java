@@ -5,13 +5,13 @@ import com.sun.tools.javac.util.Context;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClassWriter.class)
 public class MixinClassWriter {
 
     @Inject(method = "instance", at = @At("HEAD"), remap = false)
-    private static void hmm(Context context, CallbackInfo ci) {
+    private static void hmm(Context context, CallbackInfoReturnable<ClassWriter> ci) {
         throw new RuntimeException("no u");
     }
 

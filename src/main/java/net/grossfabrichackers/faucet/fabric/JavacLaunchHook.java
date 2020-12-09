@@ -1,11 +1,13 @@
 package net.grossfabrichackers.faucet.fabric;
 
+import net.fabricmc.loader.discovery.ModResolver;
 import net.grossfabrichackers.faucet.util.ReflectionUtil;
 import org.gradle.api.internal.tasks.compile.JavaCompileSpec;
 import org.gradle.api.internal.tasks.compile.JdkJavaCompiler;
 import org.gradle.api.tasks.WorkResult;
 
 import javax.tools.JavaCompiler;
+import java.io.IOException;
 
 public class JavacLaunchHook {
 
@@ -25,7 +27,15 @@ public class JavacLaunchHook {
             );
         }
         JdkJavaCompiler jdkJavaCompiler = new JdkJavaCompiler(() -> compiler);
-        return jdkJavaCompiler.execute(compileSpec);
+        try {
+            return jdkJavaCompiler.execute(compileSpec);
+        } finally {
+            // We need to cleanup the Fabric mod filesystem in order
+            // to be able to reuse fabric
+            try {
+                ModResolver.getInMemoryFs().close();
+            } catch (IOException ignored) {}
+        }
     }
 
 }
