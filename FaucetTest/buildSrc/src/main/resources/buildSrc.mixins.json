@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.grossfabrichackers.faucet.test.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinClassWriter"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

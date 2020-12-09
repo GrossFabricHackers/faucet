@@ -16,4 +16,8 @@ public class IOUtil {
         return out.toByteArray();
     }
 
+    public static String asString(InputStream stream) throws IOException {
+        return new String(readStream(stream));
+    }
+
 }

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "buildsrc",
+  "version": "1.0.0",
+  "name": "buildsrc",
+  "description": "Faucet mod generated from the buildSrc subproject.",
+  "mixins": [
+    "buildSrc.mixins.json"
+  ]
+}

@@ -1,12 +1,17 @@
 package net.grossfabrichackers.faucet;
 
 import net.grossfabrichackers.faucet.gradle.FaucetJavaCompilerFactory;
+import net.grossfabrichackers.faucet.util.IOUtil;
 import net.grossfabrichackers.faucet.util.ReflectionUtil;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.internal.file.TemporaryFileProvider;
 import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.internal.resources.StringBackedTextResource;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.internal.jvm.Jvm;
@@ -14,6 +19,7 @@ import org.gradle.internal.service.DefaultServiceRegistry;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.jvm.toolchain.internal.JavaCompilerFactory;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -28,32 +34,8 @@ public class FaucetPluginInternalHook {
         project.getLogger().lifecycle(":Applying Faucet");
 
         applyPluginDependencies(project);
-
-        // Apply the Faucet java compiler
-        ServiceRegistry services = ((ProjectInternal)project.getGradle().getParent().getRootProject()).getServices();
-        Object allServices = ReflectionUtil.getField(
-                DefaultServiceRegistry.class,
-                services,
-                "allServices"
-        );
-        Object factoryMethodService = ReflectionUtil.invoke(
-                allServices.getClass(),
-                allServices,
-                "getService",
-                new Class<?>[] { Type.class },
-                new Object[] { JavaCompilerFactory.class }
-        );
-        Object faucetFJTFHook = ReflectionUtil.newInstance(
-                Class.forName("org.gradle.internal.service.ReflectionBasedServiceMethod"),
-                new Class<?>[] { Method.class },
-                new Object[] { ReflectionUtil.getNonoverloadedMethod(FaucetJavaCompilerFactory.class, "createFaucetCompilerFactory") }
-        );
-        ReflectionUtil.setField(
-                factoryMethodService.getClass(),
-                factoryMethodService,
-                "method",
-                faucetFJTFHook
-        );
+        registerBuildSrcModTask(project);
+        applyFaucetJavaCompiler(project);
     }
 
     private static void applyPluginDependencies(Project project) throws Exception {
@@ -104,6 +86,53 @@ public class FaucetPluginInternalHook {
         annotationProcessor.accept("org.apache.logging.log4j:log4j-core:" + transientDeps.getProperty("mixin_log4j_version"));
         annotationProcessor.accept("net.fabricmc:sponge-mixin:" + transientDeps.getProperty("mixin_version"));
         annotationProcessor.accept("net.fabricmc:fabric-mixin-compile-extensions:" + transientDeps.getProperty("mixin_fabric_extensions_version"));
+    }
+
+    private static void registerBuildSrcModTask(Project project) throws Exception {
+        String buildSrcModManifest = IOUtil.asString(FaucetPluginInternalHook.class.getClassLoader().getResourceAsStream("buildSrc-fabric-mod.json"));
+
+        Copy buildSrcModTask = project.getTasks().create("buildSrcMod", Copy.class);
+        buildSrcModTask.setDestinationDir(new File(project.getBuildDir(), "resources/main/"));
+        buildSrcModTask.from(
+                new StringBackedTextResource(((ProjectInternal)project).getServices().get(TemporaryFileProvider.class), buildSrcModManifest),
+                c -> c.rename(s -> "fabric.mod.json")
+        );
+        project.getTasks().getByName("processResources").dependsOn(buildSrcModTask);
+
+        Task jarTask = project.getTasks().getByName("jar");
+        Copy copyFaucetModsTask = project.getTasks().create("copyFaucetMods", Copy.class);
+        copyFaucetModsTask.setDestinationDir(new File(project.getBuildDir(), "faucet/mods/"));
+        copyFaucetModsTask.from(jarTask.getOutputs());
+        copyFaucetModsTask.dependsOn(jarTask);
+        project.getTasks().getByName("assemble").dependsOn(copyFaucetModsTask);
+    }
+
+    private static void applyFaucetJavaCompiler(Project project) throws Exception {
+        // Apply the Faucet java compiler
+        ServiceRegistry services = ((ProjectInternal)project.getGradle().getParent().getRootProject()).getServices();
+        Object allServices = ReflectionUtil.getField(
+                DefaultServiceRegistry.class,
+                services,
+                "allServices"
+        );
+        Object factoryMethodService = ReflectionUtil.invoke(
+                allServices.getClass(),
+                allServices,
+                "getService",
+                new Class<?>[] { Type.class },
+                new Object[] { JavaCompilerFactory.class }
+        );
+        Object faucetFJTFHook = ReflectionUtil.newInstance(
+                Class.forName("org.gradle.internal.service.ReflectionBasedServiceMethod"),
+                new Class<?>[] { Method.class },
+                new Object[] { ReflectionUtil.getNonoverloadedMethod(FaucetJavaCompilerFactory.class, "createFaucetCompilerFactory") }
+        );
+        ReflectionUtil.setField(
+                factoryMethodService.getClass(),
+                factoryMethodService,
+                "method",
+                faucetFJTFHook
+        );
     }
 
 }

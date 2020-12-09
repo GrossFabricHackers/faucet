@@ -5,6 +5,7 @@
 !/gradle
 !/src
 !/.github
+!/.run
 
 # Subprojects
 !/FaucetTest

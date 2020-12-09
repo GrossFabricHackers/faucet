@@ -60,20 +60,15 @@ public class JavacGameProvider implements GameProvider {
 
     @Override
     public Collection<BuiltinMod> getBuiltinMods() {
-        try {
-            File buildSrcMod = new File(System.getProperty("user.dir") + "/buildSrc/build/libs/buildSrc.jar");
-            return ImmutableList.of(
-                    new BuiltinMod(
-                            buildSrcMod.toURI().toURL(),
-                            new BuiltinModMetadata.Builder("buildsrc", "1.0.0")
-                                    .setEnvironment(ModEnvironment.UNIVERSAL)
-                                    .build()
-                    )
-            );
-        } catch (MalformedURLException e) {
-            ReflectionUtil.throwUnchecked(e);
-            return null;
-        }
+        return ImmutableList.of(
+                new BuiltinMod(
+                        // we use faucet's url because javac may not always have a URL
+                        ((URLClassLoader) JavacGameProvider.class.getClassLoader()).getURLs()[0],
+                        new BuiltinModMetadata.Builder("javac", getNormalizedGameVersion())
+                                .setEnvironment(ModEnvironment.UNIVERSAL)
+                                .build()
+                )
+        );
     }
 
     @Override
@@ -83,7 +78,7 @@ public class JavacGameProvider implements GameProvider {
 
     @Override
     public Path getLaunchDirectory() {
-        File faucetDir = new File(System.getProperty("user.dir") + "/buildSrc/faucet");
+        File faucetDir = new File(System.getProperty("user.dir") + "/buildSrc/build/faucet");
         if(!faucetDir.exists()) {
             if(!faucetDir.mkdirs()) throw new IllegalStateException("Could not make faucet directory!");
         }

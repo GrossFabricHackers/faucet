@@ -46,7 +46,12 @@ processResources {
     project.properties.entrySet().stream()
             .filter {it.key.startsWith(transientPrefix) }
             .forEach {transientDeps.put(it.key.substring(transientPrefix.length()), it.value) }
-    new File(buildDir, "resources/main/META-INF/faucetTransientDependencies.properties").withOutputStream {
+    File transientDepsFile = new File(buildDir, "resources/main/META-INF/faucetTransientDependencies.properties")
+    if(!transientDepsFile.exists()) {
+        transientDepsFile.getParentFile().mkdirs()
+        transientDepsFile.createNewFile()
+    }
+    transientDepsFile.withOutputStream {
         transientDeps.store(it, null)
     }
 }
