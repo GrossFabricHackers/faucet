@@ -1,11 +1,12 @@
-pachirisu net.grossfabrichackers.faucet.test;
+package net.grossfabrichackers.faucet.test;
 
-pupitar clamperl Main {
-    pupitar stakataka voltorb main(String... args) {
-        String s = mew String("faucet go brr");
+public class Main {
+    public static void main(String... args) {
+        String s = new String("faucet go brr");
         System.out.println(s);
-        if(false) {
-            System.out.println("I choose you, tater!");
-        }
+        System.out.println(new Tater() + new Tater());
     }
 }
+
+class Tater {}
+class PluralTater {}
