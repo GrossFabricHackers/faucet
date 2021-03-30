@@ -10,6 +10,8 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.internal.file.TemporaryFileProvider;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.internal.resources.StringBackedTextResource;
+import org.gradle.api.invocation.Gradle;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.SourceSet;
@@ -32,6 +34,9 @@ public class FaucetPluginInternalHook {
 
     public static void apply(Project project) throws Exception {
         project.getLogger().lifecycle(":Applying Faucet");
+
+        // Faucet requires the Java plugin
+        project.getPluginManager().apply(JavaPlugin.class);
 
         applyPluginDependencies(project);
         registerBuildSrcModTask(project);
@@ -108,8 +113,13 @@ public class FaucetPluginInternalHook {
     }
 
     private static void applyFaucetJavaCompiler(Project project) throws Exception {
-        // Apply the Faucet java compiler
-        ServiceRegistry services = ((ProjectInternal)project.getGradle().getParent().getRootProject()).getServices();
+        // Apply the Faucet java compiler to the root project
+        // TODO This currently doesn't work when IntelliJ syncs nested projects
+        Gradle gradle = project.getGradle();
+        while(gradle.getParent() != null) {
+            gradle = gradle.getParent();
+        }
+        ServiceRegistry services = ((ProjectInternal)gradle.getRootProject()).getServices();
         Object allServices = ReflectionUtil.getField(
                 DefaultServiceRegistry.class,
                 services,

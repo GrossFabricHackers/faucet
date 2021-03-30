@@ -8,7 +8,7 @@ pluginManagement {
     }
     repositories {
         flatDir {
-            dir "../build/libs/"
+            dir new File(this.findProject(":").projectDir, "../../build/libs/")
         }
         gradlePluginPortal()
     }
