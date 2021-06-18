@@ -8,9 +8,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
-import org.gradle.api.internal.file.TemporaryFileProvider;
 import org.gradle.api.internal.project.ProjectInternal;
-import org.gradle.api.internal.resources.StringBackedTextResource;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -104,7 +102,7 @@ public class FaucetPlugin implements Plugin<Project> {
         Copy buildSrcModTask = project.getTasks().create("buildSrcMod", Copy.class);
         buildSrcModTask.setDestinationDir(new File(project.getBuildDir(), "resources/main/"));
         buildSrcModTask.from(
-                new StringBackedTextResource(((ProjectInternal)project).getServices().get(TemporaryFileProvider.class), buildSrcModManifest),
+                project.getResources().getText().fromString(buildSrcModManifest),
                 c -> c.rename(s -> "fabric.mod.json")
         );
         project.getTasks().getByName("processResources").dependsOn(buildSrcModTask);

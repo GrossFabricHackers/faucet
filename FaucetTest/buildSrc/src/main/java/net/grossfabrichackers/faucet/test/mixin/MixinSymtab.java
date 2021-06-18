@@ -15,7 +15,7 @@ public class MixinSymtab {
     private void injectCustomOperators(CallbackInfo ci) {
         Type tater = enterClass("net.grossfabrichackers.faucet.test.Tater");
         Type pluralTater = enterClass("net.grossfabrichackers.faucet.test.PluralTater");
-        enterBinop("+", tater, tater, pluralTater, 420);
+        enterBinop("+", tater, tater, pluralTater, 254);
     }
 
     @Shadow
